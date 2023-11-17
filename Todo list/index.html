@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Times New Roman, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color:#800080	;
+    
+    }
+
+    #app-container {
+      display: flex;
+      flex-direction: column;
+      width: 800px;
+      margin: 20px; /* Adjusted margin for spacing */
+    }
+
+    #todo-container,
+    #notifications-container {
+      width: 100%;
+      background-color:  #f5f5dc	;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+
+    .task {
+      margin-bottom: 10px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 10px;
+    }
+
+    .task label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .task select, .task input, .task button {
+      margin-top: 5px;
+    }
+
+    button {
+      background-color: #800080	;
+      color: #fff;
+      border: none;
+      padding: 8px 12px;
+      cursor: pointer;
+      border-radius: 4px;
+      margin-right: 5px;
+    }
+
+    .view-button {
+      background-color:#00008b;
+    }
+
+    .priority-high {
+      background-color: #ff4d4d;
+      color: #fff;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .priority-medium {
+      background-color: #ffa07a;
+      color: #fff;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .priority-low {
+      background-color: #add8e6;
+      color: #000;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .overdue {
+      color: #ff0000;
+      font-weight: bold;
+    }
+
+    #missed-tasks {
+      margin-top: 10px;
+    }
+
+    .missed-task {
+      background-color: #ffe0e0;
+      padding: 15px;
+      border-radius: 14px;
+      margin-bottom: 5px;
+    }
+  </style>
+  <title>ToDo List</title>
+</head>
+<body>
+
+  <div id="app-container">
+    <div id="todo-container">
+      <div class="task" id="task1">
+        <label for="task1-name">Task Name:</label>
+        <input type="text" id="task1-name" placeholder="Enter task name">
+
+        <label for="task1-category">Category:</label>
+        <input type="text" id="task1-category" placeholder="Enter category">
+
+        <label for="task1-deadline">Deadline:</label>
+        <input type="date" id="task1-deadline">
+
+        <label for="task1-priority">Priority:</label>
+        <select id="task1-priority">
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+        </select>
+
+        <label for="task1-label">Label:</label>
+        <input type="text" id="task1-label" placeholder="Enter label">
+
+        <button onclick="removeTask('task1')">Remove Task</button>
+        <button onclick="addTask('task1')">Add Task</button>
+        <button class="view-button" onclick="viewTask('task1')">View Task</button>
+      </div>
+
+      <div class="task" id="task2">
+        <label for="task2-name">Task Name:</label>
+        <input type="text" id="task2-name" placeholder="Enter task name">
+
+        <label for="task2-category">Category:</label>
+        <input type="text" id="task2-category" placeholder="Enter category">
+
+        <label for="task2-deadline">Deadline:</label>
+        <input type="date" id="task2-deadline">
+
+        <label for="task2-priority">Priority:</label>
+        <select id="task2-priority">
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+        </select>
+
+        <label for="task2-label">Label:</label>
+        <input type="text" id="task2-label" placeholder="Enter label">
+
+        <button onclick="removeTask('task2')">Remove Task</button>
+        <button onclick="addTask('task2')">Add Task</button>
+        <button class="view-button" onclick="viewTask('task2')">View Task</button>
+      </div>
+      <!-- Add more tasks as needed -->
+    </div>
+
+    <div id="notifications-container">
+      <h2>Missed Tasks</h2>
+      <div id="missed-tasks"></div>
+    </div>
+  </div>
+
+  <script>
+    // Keep track of added tasks
+    const addedTasks = new Set();
+    // Keep track of missed tasks
+    const missedTasks = new Set();
+
+    function addTask(taskId) {
+      const container = document.getElementById('todo-container');
+
+      // Task details
+      const taskName = document.getElementById(`${taskId}-name`).value;
+      const taskCategory = document.getElementById(`${taskId}-category`).value;
+      const taskDeadline = document.getElementById(`${taskId}-deadline`).value;
+      const taskPriority = document.getElementById(`${taskId}-priority`).value;
+      const taskLabel = document.getElementById(`${taskId}-label`).value;
+
+      // Check if the task is already added
+      const taskKey = `${taskName}_${taskCategory}_${taskDeadline}_${taskPriority}_${taskLabel}`;
+      if (addedTasks.has(taskKey)) {
+        alert('Task with the same details already exists!');
+        return;
+      }
+
+      // Create a new task div
+      const newTask = document.createElement('div');
+      newTask.className = 'task';
+      newTask.id = `task${container.childElementCount + 1}`;
+
+      // Task Name
+      const nameLabel = document.createElement('label');
+      nameLabel.textContent = 'Task Name:';
+      const nameInput = document.createElement('input');
+      nameInput.type = 'text';
+      nameInput.value = taskName;
+      nameInput.readOnly = true;
+
+      // Remove Button
+      const removeButton = document.createElement('button');
+      removeButton.textContent = 'Remove Task';
+      removeButton.onclick = () => removeTask(newTask.id);
+
+      // View Button
+      const viewButton = document.createElement('button');
+      viewButton.textContent = 'View Task';
+      viewButton.className = 'view-button';
+      viewButton.onclick = () => viewTask(newTask.id);
+
+      // Append elements to the new task div
+      newTask.appendChild(nameLabel);
+      newTask.appendChild(nameInput);
+      newTask.appendChild(removeButton);
+      newTask.appendChild(viewButton);
+
+      // Append the new task div to the container
+      container.insertBefore(newTask, container.lastElementChild);
+
+      // Add task key to the set
+      addedTasks.add(taskKey);
+
+      // Check if the task is overdue
+      checkOverdue(taskName, taskDeadline);
+    }
+
+    function removeTask(taskId) {
+      const task = document.getElementById(taskId);
+      task.parentNode.removeChild(task);
+
+      // Remove task key from the set
+      const taskDetails = task.querySelectorAll('input[type="text"], input[type="date"]');
+      const taskKey = Array.from(taskDetails).map(input => input.value).join('_');
+      addedTasks.delete(taskKey);
+
+      // Remove task from missed tasks
+      missedTasks.delete(taskName);
+
+      // Update missed tasks container
+      updateMissedTasksContainer();
+    }
+
+    function viewTask(taskId) {
+      const task = document.getElementById(taskId);
+      const taskDetails = task.querySelectorAll('input[type="text"], input[type="date"]');
+      const detailsArray = Array.from(taskDetails).map(input => `${input.previousSibling.textContent} ${input.value}`);
+      alert(detailsArray.join('\n'));
+    }
+
+    function checkOverdue(taskName, taskDeadline) {
+      const currentDate = new Date();
+      const deadlineDate = new Date(taskDeadline);
+
+      if (deadlineDate < currentDate) {
+        // Add task to missed tasks
+        missedTasks.add(taskName);
+
+        // Update missed tasks container
+        updateMissedTasksContainer();
+      }
+    }
+
+    function updateMissedTasksContainer() {
+      const missedTasksContainer = document.getElementById('missed-tasks');
+      missedTasksContainer.innerHTML = '';
+
+      if (missedTasks.size > 0) {
+        missedTasks.forEach(taskName => {
+          const missedTaskElement = document.createElement('div');
+          missedTaskElement.textContent = `Missed Task: ${taskName}`;
+          missedTaskElement.className = 'missed-task';
+          missedTasksContainer.appendChild(missedTaskElement);
+        });
+      } else {
+        missedTasksContainer.textContent = 'No missed tasks.';
+      }
+    }
+  </script>
+</body>
+</html>
